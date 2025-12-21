@@ -20,3 +20,9 @@ pip install fastapi uvicorn
 cd api
 uvicorn main:app --reload
 ```
+### Documentación de FastAPI (Swagger y Redoc)
+```
+localhost:8000/docs
+
+localhost:8000/redoc
+```
