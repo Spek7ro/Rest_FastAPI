@@ -17,5 +17,6 @@ pip install fastapi uvicorn
 ```
 ### Ejecutar el servidor
 ```
+cd api
 uvicorn main:app --reload
 ```
