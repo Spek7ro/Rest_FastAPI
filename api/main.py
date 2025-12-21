@@ -23,10 +23,21 @@ movies = [
 async def root():
     return "Hola mundo con fast api"
 
-## Podemos crear un endpoint que retorne un diccionario
+# Podemos crear un endpoint que retorne un diccionario
 @app.get("/movies", tags=['Home'])
-async def root():
+async def get_movies():
     return movies
+
+
+# Parametros de ruta
+@app.get("/movies/{id}", tags=['Home'])
+async def get_movie_id(id: int):
+    movie = next(filter(lambda movie: movie["id"] == id, movies), None)
+    if movie:
+        return movie
+    else:
+        return {"error": "Movie not found"}
+
 
 # Devolver un html
 # @app.get("/movies2", tags=['Home'])
