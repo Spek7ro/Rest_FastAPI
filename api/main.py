@@ -14,7 +14,15 @@ movies = [
         "year": 2019,
         "rating": 8.8,
         "category": "Action"
-    }
+    },
+    {
+        "id": 2,
+        "title": "Captain Marvel",
+        "overview": "Captain Marvel es un filme de acción dirigido por Chris McKenna y producido por Marvel Studios. El filme se centra en el personaje de Captain America, un agente secreto de la organización S.H.I.E.L.D. que se encuentra en una batalla con el malvado Skrull, Loki, en el espacio de Nueva York.",
+        "year": 2019,
+        "rating": 9.0,
+        "category": "Action"
+    },
 ]
 
 
@@ -38,6 +46,12 @@ async def get_movie_id(id: int):
     else:
         return {"error": "Movie not found"}
 
+
+# Parámetros de query
+@app.get("/movies/", tags=['Home'])
+async def get_movie_by_category(category: str):
+    movies_by_category = list(filter(lambda movie: movie["category"] == category, movies))
+    return movies_by_category
 
 # Devolver un html
 # @app.get("/movies2", tags=['Home'])
