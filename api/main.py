@@ -69,6 +69,32 @@ async def create_movie(id: int = Body(), title: str = Body(), overview: str = Bo
     return new_movie
 
 
+# Método PUT (Actualizar por id)
+@app.put("/movies/{id}", tags=['Movies'])
+async def update_movie(id: int, title: str = Body(), overview: str = Body(),
+                       year: int = Body(), rating: float = Body(), category: str = Body()):
+    movie = next(filter(lambda movie: movie["id"] == id, movies), None)
+    if movie:
+        movie["title"] = title
+        movie["overview"] = overview
+        movie["year"] = year
+        movie["rating"] = rating
+        movie["category"] = category
+        return movies
+    else:
+        return {"error": "Movie not found"}
+
+
+# Método DELETE (Eliminar por id)
+@app.delete("/movies/{id}", tags=['Movies'])
+async def delete_movie(id: int):
+    movie = next(filter(lambda movie: movie["id"] == id, movies), None)
+    if movie:
+        movies.remove(movie)
+        return movies
+    else:
+        return {"error": "Movie not found"}
+
 # Devolver un html
 # @app.get("/movies2", tags=['Home'])
 # async def root():
