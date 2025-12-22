@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Body
 from fastapi.responses import HTMLResponse
 
 app = FastAPI()
@@ -28,17 +28,17 @@ movies = [
 
 # Hola mundo con fast api
 @app.get("/", tags=['Home']) 
-async def root():
+async def home():
     return "Hola mundo con fast api"
 
 # Podemos crear un endpoint que retorne un diccionario
-@app.get("/movies", tags=['Home'])
+@app.get("/movies", tags=['Movies'])
 async def get_movies():
     return movies
 
 
 # Parametros de ruta
-@app.get("/movies/{id}", tags=['Home'])
+@app.get("/movies/{id}", tags=['Movies'])
 async def get_movie_id(id: int):
     movie = next(filter(lambda movie: movie["id"] == id, movies), None)
     if movie:
@@ -48,10 +48,26 @@ async def get_movie_id(id: int):
 
 
 # Parámetros de query
-@app.get("/movies/", tags=['Home'])
+@app.get("/movies/", tags=['Movies'])
 async def get_movie_by_category(category: str):
     movies_by_category = list(filter(lambda movie: movie["category"] == category, movies))
     return movies_by_category
+
+# Método POST (Request Body)
+@app.post("/movies", tags=['Movies'])
+async def create_movie(id: int = Body(), title: str = Body(), overview: str = Body(), 
+                       year: int = Body(), rating: float = Body(), category: str = Body()):
+    new_movie = {
+        "id": id,
+        "title": title,
+        "overview": overview,
+        "year": year,
+        "rating": rating,
+        "category": category
+    }
+    movies.append(new_movie)
+    return new_movie
+
 
 # Devolver un html
 # @app.get("/movies2", tags=['Home'])
