@@ -1,14 +1,14 @@
 from fastapi import FastAPI, Body
-from fastapi.responses import HTMLResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, List
+import datetime
 
 app = FastAPI()
 
 # app.title = "Mi Primera API"
 # app.version = "0.1.0"
 
-# Modelo de datos (Movie) para registrar y consultar
+# Modelo de datos (Movie) para consultar
 class Movie(BaseModel):
     id: int
     title: str
@@ -16,6 +16,15 @@ class Movie(BaseModel):
     year: int
     rating: float
     category: str
+
+# Modelo de datos (MovieCreate) para crear y validar los datos
+class MovieCreate(BaseModel):
+    id: int
+    title: str = Field(min_length=5, max_length=50)
+    overview: str = Field(min_length=10, max_length=100)
+    year: int = Field(ge= 1900, le=datetime.datetime.today().year) # le = less or equal (Menor o igual que el año actual)
+    rating: float = Field(ge=0, le=10)
+    category: str = Field(min_length=5, max_length=20)
 
 # Modelo de datos (MovieUpdate) para actualizar
 class MovieUpdate(BaseModel):
@@ -72,7 +81,7 @@ async def get_movie_by_category(category: str) -> Movie:
 
 # Método POST (Request Body)
 @app.post("/movies", tags=['Movies'])
-async def create_movie(movie: Movie) -> List[Movie]:
+async def create_movie(movie: MovieCreate) -> List[Movie]:
     # movies.append(movie.dict()) # dict() esta deprecated
     movies.append(movie.model_dump()) 
     return movies
@@ -100,10 +109,4 @@ async def delete_movie(id: int) -> List[Movie]:
         return movies
     else:
         return {"error": "Movie not found"}
-
-# Devolver un html
-# @app.get("/movies2", tags=['Home'])
-# async def root():
-#     return HTMLResponse("<h1>Hola mundo con fast api</h1>"
-#                         "<h3>Textoooooooo</h3>"
-#                         )
+    
