@@ -20,11 +20,11 @@ class Movie(BaseModel):
 # Modelo de datos (MovieCreate) para crear y validar los datos
 class MovieCreate(BaseModel):
     id: int
-    title: str = Field(min_length=5, max_length=50)
+    title: str = Field(min_length=5, max_length=50, default="My Movie")
     overview: str = Field(min_length=10, max_length=100)
     year: int = Field(ge= 1900, le=datetime.datetime.today().year) # le = less or equal (Menor o igual que el año actual)
     rating: float = Field(ge=0, le=10)
-    category: str = Field(min_length=5, max_length=20)
+    category: str = Field(min_length=5, max_length=20, default="Action")
 
 # Modelo de datos (MovieUpdate) para actualizar
 class MovieUpdate(BaseModel):
