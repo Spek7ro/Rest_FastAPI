@@ -20,11 +20,24 @@ class Movie(BaseModel):
 # Modelo de datos (MovieCreate) para crear y validar los datos
 class MovieCreate(BaseModel):
     id: int
-    title: str = Field(min_length=5, max_length=50, default="My Movie")
+    title: str = Field(min_length=5, max_length=50)
     overview: str = Field(min_length=10, max_length=100)
     year: int = Field(ge= 1900, le=datetime.datetime.today().year) # le = less or equal (Menor o igual que el año actual)
     rating: float = Field(ge=0, le=10)
-    category: str = Field(min_length=5, max_length=20, default="Action")
+    category: str = Field(min_length=5, max_length=20)
+
+    model_config = {
+        'json_schema_extra': {
+            'example': {
+                'id': 1,
+                'title': 'Titanic',
+                'overview': 'Una película sobre el famoso barco que se hundió en 1912.',
+                'year': 1912,
+                'rating': 8.8,
+                'category': 'Drama',
+            }
+        }
+    }
 
 # Modelo de datos (MovieUpdate) para actualizar
 class MovieUpdate(BaseModel):
@@ -34,25 +47,8 @@ class MovieUpdate(BaseModel):
     rating: float
     category: str
 
-# Lista de películas
-movies = [
-    {
-        "id": 1,
-        "title": "Avengers: Endgame",
-        "overview": "Avengers: Endgame es un filme de acción dirigido por Joss Whedon y producido por Marvel Studios. El filme se centra en los personajes de Ant-Man y Vision, dos agentes secretos de la organización S.H.I.E.L.D. que se encuentran en una batalla con el malvado Skrull, Loki, en el espacio de Nueva York.",
-        "year": 2019,
-        "rating": 8.8,
-        "category": "Action"
-    },
-    {
-        "id": 2,
-        "title": "Captain Marvel",
-        "overview": "Captain Marvel es un filme de acción dirigido por Chris McKenna y producido por Marvel Studios. El filme se centra en el personaje de Captain America, un agente secreto de la organización S.H.I.E.L.D. que se encuentra en una batalla con el malvado Skrull, Loki, en el espacio de Nueva York.",
-        "year": 2019,
-        "rating": 9.0,
-        "category": "Action"
-    },
-]
+# Lista de películas (Lista de objetos de tipo Movie)
+movies: List[Movie] = []
 
 # Hola mundo con fast api
 @app.get("/", tags=['Home']) 
@@ -62,14 +58,14 @@ async def home():
 # Podemos crear un endpoint que retorne un diccionario
 @app.get("/movies", tags=['Movies'])
 async def get_movies() -> List[Movie]:
-    return movies
+    return [movie.model_dump() for movie in movies]
 
 # Parametros de ruta
 @app.get("/movies/{id}", tags=['Movies'])
 async def get_movie_id(id: int) -> Movie:
     movie = next(filter(lambda movie: movie["id"] == id, movies), None)
     if movie:
-        return movie
+        return movie.model_dump()
     else:
         return {"error": "Movie not found"}
 
@@ -77,14 +73,13 @@ async def get_movie_id(id: int) -> Movie:
 @app.get("/movies/", tags=['Movies'])
 async def get_movie_by_category(category: str) -> Movie:
     movies_by_category = list(filter(lambda movie: movie["category"] == category, movies))
-    return movies_by_category
+    return movies_by_category.model_dump()
 
 # Método POST (Request Body)
 @app.post("/movies", tags=['Movies'])
 async def create_movie(movie: MovieCreate) -> List[Movie]:
-    # movies.append(movie.dict()) # dict() esta deprecated
-    movies.append(movie.model_dump()) 
-    return movies
+    movies.append(movie) 
+    return [movie.model_dump() for movie in movies]
 
 # Método PUT (Actualizar por id)
 @app.put("/movies/{id}", tags=['Movies'])
@@ -96,7 +91,7 @@ async def update_movie(id: int, movie: MovieUpdate) -> List[Movie]:
         movie_to_update["year"] = movie.year
         movie_to_update["rating"] = movie.rating
         movie_to_update["category"] = movie.category
-        return movies
+        return [movie.model_dump() for movie in movies]
     else:
         return {"error": "Movie not found"}
 
@@ -106,7 +101,7 @@ async def delete_movie(id: int) -> List[Movie]:
     movie = next(filter(lambda movie: movie["id"] == id, movies), None)
     if movie:
         movies.remove(movie)
-        return movies
+        return [movie.model_dump() for movie in movies]
     else:
         return {"error": "Movie not found"}
     
