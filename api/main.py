@@ -99,12 +99,12 @@ async def update_movie(movie: MovieUpdate, id: int = Path(gt=0)):
         raise HTTPException(status_code=404, detail="Movie not found")
 
 # Método DELETE (Eliminar por id)
-@app.delete("/movies/{id}", tags=['Movies'])
-async def delete_movie(id: int) -> List[Movie]:
-    movie = next(filter(lambda movie: movie["id"] == id, movies), None)
-    if movie:
-        movies.remove(movie)
-        return [movie.model_dump() for movie in movies]
+@app.delete("/movies/{id}", tags=['Movies'], response_model=Movie)
+async def delete_movie(id: int = Path(gt=0)):
+    movie_deleted = next(filter(lambda movie: movie.id == id, movies), None)
+    if movie_deleted:
+        movies.remove(movie_deleted)
+        return movie_deleted
     else:
-        return {"error": "Movie not found"}
+        raise HTTPException(status_code=404, detail="Movie not found")
     
