@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Body
+from fastapi import FastAPI, Path
 from pydantic import BaseModel, Field
 from typing import Optional, List
 import datetime
@@ -62,8 +62,8 @@ async def get_movies() -> List[Movie]:
 
 # Parametros de ruta
 @app.get("/movies/{id}", tags=['Movies'])
-async def get_movie_id(id: int) -> Movie:
-    movie = next(filter(lambda movie: movie["id"] == id, movies), None)
+async def get_movie_id(id: int = Path(gt=0)) -> Movie | dict:
+    movie = next(filter(lambda movie: movie.id == id, movies), None)
     if movie:
         return movie.model_dump()
     else:
