@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Path
+from fastapi import FastAPI, Path, Query
 from pydantic import BaseModel, Field
 from typing import Optional, List
 import datetime
@@ -71,9 +71,12 @@ async def get_movie_id(id: int = Path(gt=0)) -> Movie | dict:
 
 # Parámetros de query
 @app.get("/movies/", tags=['Movies'])
-async def get_movie_by_category(category: str) -> Movie:
-    movies_by_category = list(filter(lambda movie: movie["category"] == category, movies))
-    return movies_by_category.model_dump()
+async def get_movie_by_category(category: str = Query(min_length=5, max_length=20)) -> Movie | dict:
+    movies_by_category = next(filter(lambda movie: movie.category == category, movies), None)
+    if movies_by_category:
+        return movies_by_category
+    else:
+        return {"error": "Movie not found"}
 
 # Método POST (Request Body)
 @app.post("/movies", tags=['Movies'])
