@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Path, Query
+from fastapi import FastAPI, Path, Query, HTTPException
 from pydantic import BaseModel, Field
 from typing import Optional, List
 import datetime
@@ -85,18 +85,18 @@ async def create_movie(movie: MovieCreate) -> List[Movie]:
     return [movie.model_dump() for movie in movies]
 
 # Método PUT (Actualizar por id)
-@app.put("/movies/{id}", tags=['Movies'])
-async def update_movie(id: int, movie: MovieUpdate) -> List[Movie]:
-    movie_to_update = next(filter(lambda movie: movie["id"] == id, movies), None)
+@app.put("/movies/{id}", tags=['Movies'], response_model=Movie)
+async def update_movie(movie: MovieUpdate, id: int = Path(gt=0)):
+    movie_to_update = next(filter(lambda movie: movie.id == id, movies), None)
     if movie_to_update:
-        movie_to_update["title"] = movie.title
-        movie_to_update["overview"] = movie.overview
-        movie_to_update["year"] = movie.year
-        movie_to_update["rating"] = movie.rating
-        movie_to_update["category"] = movie.category
-        return [movie.model_dump() for movie in movies]
+        movie_to_update.title = movie.title
+        movie_to_update.overview = movie.overview
+        movie_to_update.year = movie.year
+        movie_to_update.rating = movie.rating
+        movie_to_update.category = movie.category
+        return movie_to_update
     else:
-        return {"error": "Movie not found"}
+        raise HTTPException(status_code=404, detail="Movie not found")
 
 # Método DELETE (Eliminar por id)
 @app.delete("/movies/{id}", tags=['Movies'])
