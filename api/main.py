@@ -2,6 +2,7 @@ from fastapi import FastAPI, Path, Query, HTTPException
 from pydantic import BaseModel, Field
 from typing import Optional, List
 import datetime
+from fastapi.responses import JSONResponse
 
 app = FastAPI()
 
@@ -58,16 +59,17 @@ async def home():
 # Podemos crear un endpoint que retorne un diccionario
 @app.get("/movies", tags=['Movies'])
 async def get_movies() -> List[Movie]:
-    return [movie.model_dump() for movie in movies]
+    content = [movie.model_dump() for movie in movies]
+    return JSONResponse(content=content)
 
 # Parametros de ruta
 @app.get("/movies/{id}", tags=['Movies'])
 async def get_movie_id(id: int = Path(gt=0)) -> Movie | dict:
     movie = next(filter(lambda movie: movie.id == id, movies), None)
     if movie:
-        return movie.model_dump()
+        return JSONResponse(content=movie.model_dump())
     else:
-        return {"error": "Movie not found"}
+        return JSONResponse(content={"error": "Movie not found"}, status_code=404)
 
 # Parámetros de query
 @app.get("/movies/", tags=['Movies'])
