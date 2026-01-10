@@ -2,7 +2,7 @@ from fastapi import FastAPI, Path, Query, HTTPException
 from pydantic import BaseModel, Field
 from typing import Optional, List
 import datetime
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse, PlainTextResponse, RedirectResponse
 
 app = FastAPI()
 
@@ -54,7 +54,7 @@ movies: List[Movie] = []
 # Hola mundo con fast api
 @app.get("/", tags=['Home']) 
 async def home():
-    return "Hola mundo con fast api"
+    return PlainTextResponse("Hola mundo con fast api") # Retorna texto plano
 
 # Podemos crear un endpoint que retorne un diccionario
 @app.get("/movies", tags=['Movies'])
