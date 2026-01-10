@@ -76,15 +76,17 @@ async def get_movie_id(id: int = Path(gt=0)) -> Movie | dict:
 async def get_movie_by_category(category: str = Query(min_length=5, max_length=20)) -> Movie | dict:
     movies_by_category = next(filter(lambda movie: movie.category == category, movies), None)
     if movies_by_category:
-        return movies_by_category
+        # return movies_by_category
+        return JSONResponse(content=movies_by_category.model_dump())
     else:
-        return {"error": "Movie not found"}
+        return JSONResponse(content={"error": "Movie not found"}, status_code=404)
 
 # Método POST (Request Body)
 @app.post("/movies", tags=['Movies'])
 async def create_movie(movie: MovieCreate) -> List[Movie]:
     movies.append(movie) 
-    return [movie.model_dump() for movie in movies]
+    content = [movie.model_dump() for movie in movies]
+    return JSONResponse(content=content)
 
 # Método PUT (Actualizar por id)
 @app.put("/movies/{id}", tags=['Movies'], response_model=Movie)
@@ -96,9 +98,9 @@ async def update_movie(movie: MovieUpdate, id: int = Path(gt=0)):
         movie_to_update.year = movie.year
         movie_to_update.rating = movie.rating
         movie_to_update.category = movie.category
-        return movie_to_update
+        return JSONResponse(content=movie_to_update.model_dump())
     else:
-        raise HTTPException(status_code=404, detail="Movie not found")
+        return JSONResponse(content={"error": "Movie not found"}, status_code=404)
 
 # Método DELETE (Eliminar por id)
 @app.delete("/movies/{id}", tags=['Movies'], response_model=Movie)
@@ -106,7 +108,7 @@ async def delete_movie(id: int = Path(gt=0)):
     movie_deleted = next(filter(lambda movie: movie.id == id, movies), None)
     if movie_deleted:
         movies.remove(movie_deleted)
-        return movie_deleted
+        return JSONResponse(content=movie_deleted.model_dump())
     else:
-        raise HTTPException(status_code=404, detail="Movie not found")
+        return JSONResponse(content={"error": "Movie not found"}, status_code=404)
     
