@@ -87,6 +87,7 @@ async def create_movie(movie: MovieCreate) -> List[Movie]:
     movies.append(movie) 
     content = [movie.model_dump() for movie in movies]
     return JSONResponse(content=content)
+    # return RedirectResponse('/movies', status_code=302) # Redirección a la ruta /movies codigo 302
 
 # Método PUT (Actualizar por id)
 @app.put("/movies/{id}", tags=['Movies'], response_model=Movie)
