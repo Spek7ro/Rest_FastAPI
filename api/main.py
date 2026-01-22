@@ -60,14 +60,14 @@ async def home():
 @app.get("/movies", tags=['Movies'])
 async def get_movies() -> List[Movie]:
     content = [movie.model_dump() for movie in movies]
-    return JSONResponse(content=content)
+    return JSONResponse(content=content, status_code=200)
 
 # Parametros de ruta
 @app.get("/movies/{id}", tags=['Movies'])
 async def get_movie_id(id: int = Path(gt=0)) -> Movie | dict:
     movie = next(filter(lambda movie: movie.id == id, movies), None)
     if movie:
-        return JSONResponse(content=movie.model_dump())
+        return JSONResponse(content=movie.model_dump(), status_code=200)
     else:
         return JSONResponse(content={"error": "Movie not found"}, status_code=404)
 
@@ -77,7 +77,7 @@ async def get_movie_by_category(category: str = Query(min_length=5, max_length=2
     movies_by_category = next(filter(lambda movie: movie.category == category, movies), None)
     if movies_by_category:
         # return movies_by_category
-        return JSONResponse(content=movies_by_category.model_dump())
+        return JSONResponse(content=movies_by_category.model_dump(), status_code=200)
     else:
         return JSONResponse(content={"error": "Movie not found"}, status_code=404)
 
@@ -86,7 +86,7 @@ async def get_movie_by_category(category: str = Query(min_length=5, max_length=2
 async def create_movie(movie: MovieCreate) -> List[Movie]:
     movies.append(movie) 
     content = [movie.model_dump() for movie in movies]
-    return JSONResponse(content=content)
+    return JSONResponse(content=content, status_code=201)
     # return RedirectResponse('/movies', status_code=302) # Redirección a la ruta /movies codigo 302
 
 # Método PUT (Actualizar por id)
@@ -99,7 +99,7 @@ async def update_movie(movie: MovieUpdate, id: int = Path(gt=0)):
         movie_to_update.year = movie.year
         movie_to_update.rating = movie.rating
         movie_to_update.category = movie.category
-        return JSONResponse(content=movie_to_update.model_dump())
+        return JSONResponse(content=movie_to_update.model_dump(), status_code=200)
     else:
         return JSONResponse(content={"error": "Movie not found"}, status_code=404)
 
@@ -109,7 +109,7 @@ async def delete_movie(id: int = Path(gt=0)):
     movie_deleted = next(filter(lambda movie: movie.id == id, movies), None)
     if movie_deleted:
         movies.remove(movie_deleted)
-        return JSONResponse(content=movie_deleted.model_dump())
+        return JSONResponse(content=movie_deleted.model_dump(), status_code=200)
     else:
         return JSONResponse(content={"error": "Movie not found"}, status_code=404)
 
