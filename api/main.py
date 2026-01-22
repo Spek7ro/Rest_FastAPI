@@ -2,7 +2,7 @@ from fastapi import FastAPI, Path, Query, HTTPException
 from pydantic import BaseModel, Field
 from typing import Optional, List
 import datetime
-from fastapi.responses import JSONResponse, HTMLResponse, PlainTextResponse, RedirectResponse
+from fastapi.responses import JSONResponse, HTMLResponse, PlainTextResponse, RedirectResponse, FileResponse
 
 app = FastAPI()
 
@@ -112,4 +112,8 @@ async def delete_movie(id: int = Path(gt=0)):
         return JSONResponse(content=movie_deleted.model_dump())
     else:
         return JSONResponse(content={"error": "Movie not found"}, status_code=404)
-    
+
+# Endpoint para retornar un archivo TXT
+@app.get("/file", tags=['Files'])
+async def get_file():
+    return FileResponse('../requirements.txt') 
